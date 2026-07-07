@@ -54,6 +54,29 @@ indo_geojson = load_geojson()
 st.markdown("""
 <style>
 
+/* SEMBUNYIKAN TOOLBAR BAWAAN STREAMLIT (Deploy, menu, dsb) */
+header[data-testid="stHeader"]{
+    visibility:hidden;
+    height:0;
+}
+
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+#MainMenu,
+footer{
+    visibility:hidden;
+    height:0;
+}
+
+/* PAGE PADDING */
+.block-container{
+    padding-top:1.2rem !important;
+    padding-bottom:0.8rem !important;
+    padding-left:2rem !important;
+    padding-right:2rem !important;
+}
+
 /* BACKGROUND */
 .stApp{
     background:#EAF5FF;
@@ -69,43 +92,64 @@ st.markdown("""
 .st-key-row2_right_card{
 
     background:white;
-    border-radius:14px;
-    padding:18px;
+    border-radius:12px;
+    padding:8px 14px;
     box-shadow:0 3px 10px rgba(0,0,0,.08);
+    overflow:hidden;
 }
 
 /* ---------- ROW 1 ---------- */
 
 /* Summary */
 .st-key-summary_card{
-    height:22vh;
+    height:20vh;
 }
 
 /* Trend */
 .st-key-trend_card{
-    height:42vh;
-}
-
-/* Top Product */
-.st-key-top_card{
-    height:42vh;
+    height:20vh;
 }
 
 /* ---------- ROW 2 ---------- */
 
-/* Province */
+/* Province (tall, kiri) */
 .st-key-row2_left_card{
-    height:62vh;
+    height:29vh;
 }
 
-/* Category */
+/* Top Product (bawah kiri) */
+.st-key-top_card{
+    height:21vh;
+}
+
+/* Category (kanan atas) */
 .st-key-row2_middle_card{
-    height:42vh;
+    height:25vh;
 }
 
-/* Return */
+/* Return (kanan bawah) */
 .st-key-row2_right_card{
-    height:42vh;
+    height:25vh;
+}
+
+/* ================= HEADINGS ================= */
+
+.st-key-summary_card h3,
+.st-key-trend_card h3,
+.st-key-top_card h3,
+.st-key-row2_left_card h3,
+.st-key-row2_middle_card h3,
+.st-key-row2_right_card h3{
+    font-size:15px;
+    margin:0 0 6px 0;
+}
+
+[data-testid="stMetricValue"]{
+    font-size:20px !important;
+}
+
+[data-testid="stMetricLabel"]{
+    font-size:12px !important;
 }
 
 /* ================= TEXT ================= */
@@ -126,6 +170,53 @@ st.markdown("""
 
 [data-testid="stMetricValue"]{
     color:#111 !important;
+}
+
+/* ================= SALES SUMMARY BOXES ================= */
+
+.summary-grid{
+    display:flex;
+    gap:12px;
+    margin-top:14px;
+    margin-bottom:20px;
+}
+
+.summary-box{
+    flex:1;
+    background:#DCEAFB;
+    border-radius:14px;
+    padding:14px 12px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    height: 100px;
+    width: 100px;
+}
+
+.summary-icon{
+    width:27px;
+    height:27px;
+    border-radius:50%;
+    background:#1B2559;
+    color:#FFFFFF !important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    margin-bottom:10px;
+}
+
+.summary-value{
+    font-size:20px;
+    font-weight:700;
+    color:#111 !important;
+    line-height:1.1;
+}
+
+.summary-label{
+    font-size:12.5px;
+    color:#666 !important;
+    margin-top:2px;
 }
 
 </style>
@@ -198,6 +289,17 @@ return_df = (
 )
 
 # ==========================
+# REVENUE PER PRODUCT CATEGORY
+# ==========================
+
+revenue_category = (
+    df.groupby("product_category")["revenue"]
+    .sum()
+    .reset_index()
+    .sort_values("revenue", ascending=True)
+)
+
+# ==========================
 # CHART
 # ==========================
 
@@ -210,8 +312,8 @@ fig = px.line(
 )
 
 fig.update_layout(
-    height=210,
-    margin=dict(l=10, r=10, t=40, b=10),
+    height=115,
+    margin=dict(l=10, r=10, t=30, b=10),
 
     paper_bgcolor="white",     # Background luar
     plot_bgcolor="white",      # Background area grafik
@@ -247,7 +349,7 @@ fig_return.update_traces(
 
 fig_return.update_layout(
 
-    height=210,
+    height=135,
 
     paper_bgcolor="white",
     plot_bgcolor="white",
@@ -258,6 +360,49 @@ fig_return.update_layout(
     yaxis_title=None,
 
     font=dict(color="black"),
+
+    xaxis=dict(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        tickfont=dict(color="black")
+    ),
+
+    yaxis=dict(
+        showgrid=False,
+        tickfont=dict(color="black")
+    )
+)
+
+fig_category = px.bar(
+    revenue_category,
+    x="revenue",
+    y="product_category",
+    orientation="h",
+    color="revenue",
+    color_continuous_scale="Blues",
+    text="revenue"
+)
+
+fig_category.update_traces(
+    texttemplate="%{text:.2s}",
+    textposition="outside"
+)
+
+fig_category.update_layout(
+    height=135,
+
+    paper_bgcolor="white",
+    plot_bgcolor="white",
+
+    margin=dict(l=10, r=10, t=10, b=10),
+
+    xaxis_title=None,
+    yaxis_title=None,
+
+    font=dict(color="black"),
+
+    showlegend=False,
+    coloraxis_showscale=False,
 
     xaxis=dict(
         showgrid=True,
@@ -288,7 +433,7 @@ fig_map = px.choropleth_mapbox(
 )
 
 fig_map.update_layout(
-    height=400, 
+    height=200, 
     margin={"r":0,"t":0,"l":0,"b":0},
     paper_bgcolor="white",
     plot_bgcolor="white",
@@ -310,47 +455,45 @@ fig_map.update_layout(
 # DASHBOARD
 # =====================================
 
-col1, col2, col3 = st.columns(3, gap="medium")
-
 # =====================================
-# COLUMN 1
+# ROW 1: Summary | Trend
 # =====================================
 
-with col1:
+row1_left, row1_right = st.columns([1.28, 1], gap="small")
+
+with row1_left:
 
     # ---------- Sales Summary ----------
     with st.container(key="summary_card"):
 
         st.markdown("### 📊 Sales Summary")
 
-        c1, c2 = st.columns(2)
+        st.markdown(f"""
+        <div class="summary-grid">
+            <div class="summary-box">
+                <div class="summary-icon">📊</div>
+                <div class="summary-value">{format_rupiah(total_revenue)}</div>
+                <div class="summary-label">Total Revenue</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-icon">📄</div>
+                <div class="summary-value">{total_orders:,}</div>
+                <div class="summary-label">Total Order</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-icon">⭐</div>
+                <div class="summary-value">{avg_rating:.2f}</div>
+                <div class="summary-label">Average Rating</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-icon">📦</div>
+                <div class="summary-value">{return_rate:.2f}%</div>
+                <div class="summary-label">Return Rate</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        with c1:
-            st.metric("💰 Revenue", format_rupiah(total_revenue))
-            st.metric("📦 Orders", f"{total_orders:,}")
-
-        with c2:
-            st.metric("↩️ Return", f"{return_rate:.2f}%")
-            st.metric("⭐ Rating", f"{avg_rating:.2f}")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ---------- Revenue Province ----------
-    with st.container(key="row2_left_card"):
-
-        st.markdown("### 🌍 Revenue per Province")
-
-        st.plotly_chart(
-            fig_map, 
-            use_container_width=True, 
-            config={"displayModeBar": False, "scrollZoom": True} 
-)
-
-# =====================================
-# COLUMN 2
-# =====================================
-
-with col2:
+with row1_right:
 
     # ---------- Trend ----------
     with st.container(key="trend_card"):
@@ -363,20 +506,28 @@ with col2:
             config={"displayModeBar": False}
         )
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ---------- Revenue Category ----------
-    with st.container(key="row2_middle_card"):
-
-        st.markdown("### 🛍 Revenue per Category")
-
-        st.empty()
+st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
 
 # =====================================
-# COLUMN 3
+# ROW 2: (Province + Top Product) | (Category + Return)
 # =====================================
 
-with col3:
+row2_left, row2_right = st.columns([1, 1.85], gap="small")
+
+with row2_left:
+
+    # ---------- Revenue Province ----------
+    with st.container(key="row2_left_card"):
+
+        st.markdown("### 🌍 Revenue per Province")
+
+        st.plotly_chart(
+            fig_map, 
+            use_container_width=True, 
+            config={"displayModeBar": False, "scrollZoom": True} 
+)
+
+    st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
 
     # ---------- Top Product ----------
     with st.container(key="top_card"):
@@ -385,7 +536,20 @@ with col3:
 
         st.empty()
 
-    st.markdown("<br>", unsafe_allow_html=True)
+with row2_right:
+
+    # ---------- Revenue Category ----------
+    with st.container(key="row2_middle_card"):
+
+        st.markdown("### 🛍 Revenue per Category")
+
+        st.plotly_chart(
+            fig_category,
+            width="stretch",
+            config={"displayModeBar": False}
+        )
+
+    st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
 
     # ---------- Return ----------
     with st.container(key="row2_right_card"):
