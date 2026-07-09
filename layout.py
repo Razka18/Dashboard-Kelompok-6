@@ -63,11 +63,18 @@ st.markdown("""
 /* SEMBUNYIKAN TOOLBAR BAWAAN STREAMLIT, TAPI JANGAN HILANGKAN TOMBOL SIDEBAR */
 /* ================= HILANGKAN GAP STREAMLIT ================= */
 
-html,
-body,
-.stApp{
-    margin:0 !important;
-    padding:0 !important;
+html, body, .stApp{
+    overflow:hidden !important;
+    height:100vh !important;
+}
+
+.st-key-left_navbar{
+    height:100vh !important;
+}
+
+.block-container{
+    height:100vh !important;
+    overflow:hidden !important;
 }
 
 /* Header bawaan Streamlit */
