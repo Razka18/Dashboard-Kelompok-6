@@ -41,7 +41,7 @@ def alias_key(name: str) -> str:
     return ALIAS.get(n, n)
 
 BASE_DIR = Path(__file__).resolve().parent
-GEOJSON_PATH = BASE_DIR / "data" / "indonesia-province-simple.json"
+GEOJSON_PATH = BASE_DIR / "Data" / "indonesia-province-simple.json"
 
 @st.cache_data
 def load_geojson():
