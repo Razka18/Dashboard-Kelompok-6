@@ -1093,6 +1093,7 @@ fig.update_traces(
     "Revenue: %{customdata[0]}<br>" +
     "Total Order: %{customdata[1]:,}" +
     "<extra></extra>"
+    
 )
 
 fig.update_layout(
@@ -1105,9 +1106,9 @@ fig.update_layout(
     font=dict(color="black"),
 
     hoverlabel=dict(
-        bgcolor="black",
+        bgcolor="#EAF5FF",
         font_size=12,
-        font_color="#FFFFFF"
+        font_color="black"
     ),
 
     xaxis_title=None,
@@ -1172,6 +1173,12 @@ fig_return.update_layout(
 
     font=dict(color="black"),
 
+    hoverlabel=dict(
+        bgcolor="#EAF5FF",
+        font_size=12,
+        font_color="black"
+    ),
+
     xaxis=dict(
         showgrid=True,
         gridcolor="#E5E7EB",
@@ -1232,6 +1239,12 @@ fig_category.update_layout(
     showlegend=False,
     coloraxis_showscale=False,
 
+    hoverlabel=dict(
+        bgcolor="#EAF5FF",
+        font_size=12,
+        font_color="black"
+    ),
+
     xaxis=dict(
         showgrid=True,
         gridcolor="#E5E7EB",
@@ -1288,9 +1301,9 @@ fig_map.update_layout(
     coloraxis_showscale=False,
     dragmode=False,
     hoverlabel=dict(
-        bgcolor="black",
+        bgcolor="#EAF5FF",
         font_size=12,
-        font_color="#FFFFFF"
+        font_color="black"
     )
 )
 
