@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import requests
+import json
+from pathlib import Path
 import unicodedata
 import copy
 import streamlit.components.v1 as components
@@ -39,18 +40,32 @@ def alias_key(name: str) -> str:
     n = normalize(name)
     return ALIAS.get(n, n)
 
+BASE_DIR = Path(__file__).resolve().parent
+GEOJSON_PATH = BASE_DIR / "data" / "indonesia-province-simple.json"
+
 @st.cache_data
 def load_geojson():
-    url = "https://raw.githubusercontent.com/superpikar/indonesia-geojson/master/indonesia-province-simple.json"
-    resp = requests.get(url, timeout=30)
-    resp.raise_for_status()
-    geojson_data = resp.json()
-    
-    for feature in geojson_data['features']:
-        nama_asli_geojson = feature['properties']['Propinsi']
-        feature['properties']['match_key'] = alias_key(nama_asli_geojson)
-        
-    return geojson_data
+    with open(GEOJSON_PATH, "r", encoding="utf-8") as file:
+        geojson = json.load(file)
+
+    for feature in geojson["features"]:
+        props = feature.get("properties", {})
+
+        raw_name = (
+            props.get("match_key")
+            or props.get("state")
+            or props.get("name")
+            or props.get("NAME_1")
+            or props.get("NAME")
+            or props.get("Propinsi")
+            or props.get("PROVINSI")
+            or props.get("provinsi")
+        )
+
+        props["match_key"] = alias_key(raw_name)
+        feature["properties"] = props
+
+    return geojson
 
 indo_geojson = load_geojson()
 
@@ -63,18 +78,11 @@ st.markdown("""
 /* SEMBUNYIKAN TOOLBAR BAWAAN STREAMLIT, TAPI JANGAN HILANGKAN TOMBOL SIDEBAR */
 /* ================= HILANGKAN GAP STREAMLIT ================= */
 
-html, body, .stApp{
-    overflow:hidden !important;
-    height:100vh !important;
-}
-
-.st-key-left_navbar{
-    height:100vh !important;
-}
-
-.block-container{
-    height:100vh !important;
-    overflow:hidden !important;
+html,
+body,
+.stApp{
+    margin:0 !important;
+    padding:0 !important;
 }
 
 /* Header bawaan Streamlit */
@@ -1100,7 +1108,6 @@ fig.update_traces(
     "Revenue: %{customdata[0]}<br>" +
     "Total Order: %{customdata[1]:,}" +
     "<extra></extra>"
-    
 )
 
 fig.update_layout(
@@ -1113,7 +1120,7 @@ fig.update_layout(
     font=dict(color="black"),
 
     hoverlabel=dict(
-        bgcolor="#EAF5FF",
+        bgcolor="#eaf5ff",
         font_size=12,
         font_color="black"
     ),
@@ -1178,13 +1185,13 @@ fig_return.update_layout(
     yaxis_title=None,
     dragmode=False,
 
-    font=dict(color="black"),
-
     hoverlabel=dict(
-        bgcolor="#EAF5FF",
+        bgcolor="#eaf5ff",
         font_size=12,
         font_color="black"
     ),
+
+    font=dict(color="black"),
 
     xaxis=dict(
         showgrid=True,
@@ -1238,7 +1245,7 @@ fig_category.update_layout(
     margin=dict(l=10, r=10, t=10, b=10),
 
     xaxis_title=None,
-    yaxis_title=None,\
+    yaxis_title=None,
     dragmode=False,
 
     font=dict(color="black"),
@@ -1247,7 +1254,7 @@ fig_category.update_layout(
     coloraxis_showscale=False,
 
     hoverlabel=dict(
-        bgcolor="#EAF5FF",
+        bgcolor="#eaf5ff",
         font_size=12,
         font_color="black"
     ),
@@ -1308,7 +1315,7 @@ fig_map.update_layout(
     coloraxis_showscale=False,
     dragmode=False,
     hoverlabel=dict(
-        bgcolor="#EAF5FF",
+        bgcolor="#eaf5ff",
         font_size=12,
         font_color="black"
     )
@@ -1365,7 +1372,7 @@ with main_col:
                 <div class="summary-box">
                     <div class="summary-icon">📄</div>
                     <div class="summary-value">{total_orders:,}</div>
-                    <div class="summary-label">Total Order</div>
+                    <div class="summary-label">Total Orders</div>
                 </div>
                 <div class="summary-box">
                     <div class="summary-icon">⭐</div>
