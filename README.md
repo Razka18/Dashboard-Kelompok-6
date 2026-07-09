@@ -1,4 +1,4 @@
-# Dashboard Sales Report (Kelompok 6)
+# Dashboard Sales Report (Kelompok 5)
 
 Proyek ini adalah Dashboard interaktif untuk pelaporan penjualan yang dikembangkan menggunakan **Streamlit** (Python). 
 
